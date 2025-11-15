@@ -21,6 +21,7 @@ namespace Sprint_3
         public int RedScore { get; protected set;}
         public int MovesLeft { get; protected set; }
 
+        public abstract int TestMove(int row, int col, Cell move);
         public BaseGame(int boardSize)
         {
             BoardSize = boardSize;

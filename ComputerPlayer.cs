@@ -51,7 +51,12 @@ namespace Sprint_3
                 return;
             }
 
-            Point target = emptySpots[_rand.Next(0, 2) == 0) ?]
+            Point target = emptySpots[_rand.Next(emptySpots.Count)];
+
+            Cell randomLetter = (_rand.Next(0, 2) == 0) ? Cell.S : Cell.O;
+
+            game.MakeMove(target.X, target.Y, randomLetter);
+
         }
     }
 }
