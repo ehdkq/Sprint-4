@@ -15,11 +15,18 @@ namespace Sprint_3
         private BaseGame game;
         private Button[,] gridButtons;
 
+        private IPlayer _bluePlayer;
+        private IPlayer _redPlayer;
+        private Timer _computerTimer;
         public Form1()
         {
             InitializeComponent();
 
             pnlBoard.Enabled = false;
+
+            _computerTimer = new Timer();
+            _computerTimer.Interval = 1000;
+            _computerTimer.Tick += ComputerTimer_Tick;
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -39,6 +46,8 @@ namespace Sprint_3
 
         private void btnNewGame_Click(object sender, EventArgs e) //what happens when you click the new game button
         {
+            _computerTimer.Stop();
+
             int boardSize = (int)numBoardSize.Value; //declares the boardSize the user inputs from the field
 
             var mode = simpleGameButton.Checked ? GameMode.Simple : GameMode.General; //checks which game mode is selected
@@ -52,13 +61,59 @@ namespace Sprint_3
                 game = new GeneralGame(boardSize);
             }
 
+            _bluePlayer = radioButton1.Checked ? (IPlayer)new ComputerPlayer() : new HumanPlayer();
+            _redPlayer = radioButton2.Checked ? (IPlayer)new ComputerPlayer() : new HumanPlayer();
+            
             pnlBoard.Enabled = true;
             CreateBoardGrid(boardSize); //creates the grid based on the boardSize
 
             UpdateTurnLabel(); //updates the turn (red or blue)
             UpdateScores();
+
+            CheckComputerTurn();
         }
-        
+
+        private void CheckComputerTurn()
+        {
+            if (game.State != GameState.InProgress)
+            {
+                return;
+            }
+
+            IPlayer currentPlayer = (game.CurrentTurn == Player.Blue) ? _bluePlayer : _redPlayer;
+
+            if (currentPlayer is ComputerPlayer)
+            {
+                pnlBoard.Enabled = false;
+                _computerTimer.Start();
+            }
+            else
+            {
+                pnlBoard.Enabled = true;
+            }
+        }
+
+        private void ComputerTimer_Tick(object sender, EventArgs e)
+        {
+            _computerTimer.Stop();
+
+            if (game.State != GameState.InProgress)
+            {
+                return;
+            }
+
+            IPlayer currentPlayer = (game.CurrentTurn == Player.Blue) ? _bluePlayer : _redPlayer;
+
+            currentPlayer.MakeMove(game);
+
+            UpdateBoardFromGame();
+            UpdateScores();
+            UpdateTurnLabel();
+            CheckForGameOver();
+
+            CheckComputerTurn();
+        }
+
         private void CreateBoardGrid(int size)
         {
             pnlBoard.Controls.Clear(); //clears board
@@ -88,6 +143,12 @@ namespace Sprint_3
 
         private void GridButton_Click(object sender, EventArgs e)
         {
+            IPlayer currentPlayer = (game.CurrentTurn == Player.Blue) ? _bluePlayer : _redPlayer;
+            if (currentPlayer is ComputerPlayer)
+            {
+                return;
+            }
+
             Button clickedButton = sender as Button;
 
             if (clickedButton == null || game == null || game.State != GameState.InProgress)
@@ -112,6 +173,8 @@ namespace Sprint_3
             UpdateScores();
             CheckForGameOver();
             UpdateTurnLabel();
+
+            CheckComputerTurn();
         }
 
         private void UpdateTurnLabel() //updates turn label from red to blue and vice versa
@@ -124,12 +187,9 @@ namespace Sprint_3
 
             lblTurn.Text = $"Current Turn: {game.CurrentTurn}";
 
-            if (game.State != GameState.InProgress)
-            {
-                bluePlayer.Enabled = false;
-                redPlayer.Enabled = false;
-                return;
-            }
+            bool isBlueHuman = (_bluePlayer is HumanPlayer);
+            bool isRedHuman = (_redPlayer is HumanPlayer);
+            
             if (game.CurrentTurn == Player.Blue)
             {
                 bluePlayer.Enabled = true ; //switches from blue to red
@@ -209,6 +269,7 @@ namespace Sprint_3
         {
             if (game.State != GameState.InProgress)
             {
+                _computerTimer.Stop();
                 pnlBoard.Enabled = false;
                 string message = "";
                 if (game.State == GameState.Draw)
@@ -226,6 +287,11 @@ namespace Sprint_3
 
                 MessageBox.Show(message, "Game Over!");
             }
+        }
+
+        private void radioButton1_CheckedChanged_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

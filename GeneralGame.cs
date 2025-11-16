@@ -22,6 +22,21 @@ namespace Sprint_3
             CheckForWin(row, col);
         }
 
+        public override int TestMove(int row, int col, Cell move)
+        {
+            if (GameBoard[row, col] != Cell.Empty)
+            {
+                return 0;
+            }
+
+            GameBoard[row, col] = move;
+
+            int sosCount = FindSOS(row, col);
+
+            GameBoard[row, col] = Cell.Empty;
+
+            return sosCount;
+        }
         protected override void CheckForWin(int r, int c)
         {
             int newSOSCount = FindSOS(r, c);
