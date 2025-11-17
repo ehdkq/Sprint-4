@@ -116,5 +116,82 @@ namespace Sprint_3.Tests
             Assert.That(game.RedScore, Is.EqualTo(0));
             Assert.That(game.State, Is.EqualTo(GameState.Draw)); //draw game
         }
+
+        [Test]
+        //user story 9, computer wins simple game
+        public void ComputerPlayer_TakesObviousWinningMove_SimpleGame()
+        {
+            BaseGame game = new SimpleGame(5);
+            IPlayer computer = new ComputerPlayer();
+
+            game.MakeMove(0, 0, Cell.S);
+            game.MakeMove(1, 1, Cell.S);
+            game.MakeMove(0, 2, Cell.S);
+
+            computer.MakeMove(game);
+
+            Assert.That(game.GameBoard[0, 1], Is.EqualTo(Cell.O));
+
+            Assert.That(game.State, Is.EqualTo(GameState.RedWin));
+        }
+
+        [Test]
+        //a.c. 9.4, computer wins general game
+        public void ComputerPlayer_TakesScoringMove_GeneralGame()
+        {
+            BaseGame game = new GeneralGame(5);
+            IPlayer computer = new ComputerPlayer();
+
+            game.MakeMove(1, 1, Cell.S);
+            game.MakeMove(0, 0, Cell.S);
+            game.MakeMove(1, 2, Cell.S);
+            game.MakeMove(0, 2, Cell.S);
+
+            computer.MakeMove(game);
+
+            Assert.That(game.GameBoard[0, 1], Is.EqualTo(Cell.O));
+
+            Assert.That(game.BlueScore, Is.EqualTo(1));
+
+            Assert.That(game.CurrentTurn, Is.EqualTo(Player.Blue));
+        }
+
+        [Test]
+        //a.c. 9.2, computer places a move
+        public void ComputerPlayer_MakesRandomMove_WhenNoWinAvailable()
+        {
+            BaseGame game = new GeneralGame(5);
+            IPlayer computer = new ComputerPlayer();
+
+            game.MakeMove(1, 1, Cell.S);
+
+            computer.MakeMove(game);
+
+            Assert.That(game.MovesLeft, Is.EqualTo(23));
+
+            Assert.That(game.RedScore, Is.EqualTo(0));
+
+            Assert.That(game.CurrentTurn, Is.EqualTo(Player.Blue));
+        }
+
+        [Test]
+        //a.c. 9.1, computer checks if box is empty
+        public void ComputerPlayer_DoesNotCrash_WhenBoardIsFull()
+        {
+            BaseGame game = new GeneralGame(3);
+            IPlayer computer = new ComputerPlayer();
+
+            for (int r = 0; r < 3; r++)
+            {
+                for (int c = 0; c < 3; c++)
+                {
+                    game.MakeMove(r, c, Cell.S);
+                }
+            }
+
+            Assert.That(game.State, Is.EqualTo(GameState.Draw));
+
+            Assert.DoesNotThrow(() => computer.MakeMove(game));
+        }
     }
 }
