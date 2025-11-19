@@ -194,6 +194,8 @@ namespace Sprint_3
             {
                 bluePlayer.Enabled = true;
                 redPlayer.Enabled = true;
+                radioButton1.Enabled = true;
+                radioButton2.Enabled = true;
                 return;
             }
 
