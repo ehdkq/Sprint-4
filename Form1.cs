@@ -64,6 +64,9 @@ namespace Sprint_3
             _bluePlayer = radioButton1.Checked ? (IPlayer)new ComputerPlayer() : new HumanPlayer();
             _redPlayer = radioButton2.Checked ? (IPlayer)new ComputerPlayer() : new HumanPlayer();
             
+            radioButton1.Enabled = false;
+            radioButton2.Enabled = false;
+            
             pnlBoard.Enabled = true;
             CreateBoardGrid(boardSize); //creates the grid based on the boardSize
 
@@ -187,19 +190,32 @@ namespace Sprint_3
 
             lblTurn.Text = $"Current Turn: {game.CurrentTurn}";
 
+            if (game.State != GameState.InProgress) 
+            {
+                bluePlayer.Enabled = true;
+                redPlayer.Enabled = true;
+                return;
+            }
+
             bool isBlueHuman = (_bluePlayer is HumanPlayer);
             bool isRedHuman = (_redPlayer is HumanPlayer);
-            
-            if (game.CurrentTurn == Player.Blue)
+
+            if (game.CurrentTurn == Player.Blue && isBlueHuman) 
             {
-                bluePlayer.Enabled = true ; //switches from blue to red
+                bluePlayer.Enabled = true;
                 redPlayer.Enabled = false;
+            }
+            else if (game.CurrentTurn == Player.Red && isRedHuman)
+            {
+                bluePlayer.Enabled = false;
+                redPlayer.Enabled = true;
             }
             else
             {
-                bluePlayer.Enabled = false; //switches from red to blue
-                redPlayer.Enabled = true ; 
+                bluePlayer.Enabled = false;
+                redPlayer.Enabled = false;
             }
+            
         }
         private void numBoardSize_ValueChanged(object sender, EventArgs e)
         {
